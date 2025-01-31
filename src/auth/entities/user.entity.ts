@@ -25,7 +25,7 @@ export class User extends Document {
   @Prop({
     type: String,
     default: 'active',
-    enum: ['active', 'blocked'],
+    enum: ['active', 'inactive'],
     required: false,
   })
   status: string;
