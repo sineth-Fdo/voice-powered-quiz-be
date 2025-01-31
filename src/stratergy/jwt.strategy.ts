@@ -10,13 +10,13 @@ import config from 'src/config/config';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private configService: ConfigService, // ✅ Inject ConfigService
+    private configService: ConfigService, 
     private authService: AuthService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET'), // ✅ Load from env
+      secretOrKey: configService.get<string>('JWT_SECRET'),
     });
   }
 
