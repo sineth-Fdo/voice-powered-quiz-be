@@ -1,19 +1,30 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from 'src/stratergy/jwt.strategy';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UserSchema } from './entities/user.entity';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from 'src/stratergy/jwt.strategy';
 
 @Module({
   imports: [
     PassportModule,
-    JwtModule.register({
-      secret: 'your_jwt_secret', // Use a secure secret or environment variable
-      signOptions: { expiresIn: '1h' }, // Set your token expiry time
+    ConfigModule, // ✅ Import ConfigModule
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const secret = configService.get<string>('JWT_SECRET');
+        console.log('Loaded JWT_SECRET:', secret); // Debugging line
+        return {
+          secret: secret,
+          signOptions: { expiresIn: '1h' },
+        };
+      },
     }),
+    
     MongooseModule.forFeature([
       { name: 'User', schema: UserSchema },
     ]),
@@ -24,5 +35,6 @@ import { JwtStrategy } from 'src/stratergy/jwt.strategy';
     JwtStrategy,
     AuthService
   ],
+  exports: [AuthService]
 })
 export class AuthModule {}

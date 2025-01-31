@@ -14,11 +14,11 @@ export class AuthService {
   constructor(@InjectModel(User.name) private UserModel: Model<User>,
   private jwtService: JwtService
 ) {}
- 
+
       // register a new user
       async signup(signupData: SignupDto) {
 
-        const {email, name, password, role} = signupData;
+        const {email, name, password, role, grade} = signupData;
 
         const emailInUse = await this.UserModel.findOne({email});
 
@@ -32,7 +32,8 @@ export class AuthService {
             email,
             name,
             password: hashedPassword,
-            role
+            role,
+            grade
         });
 
         return 'User registered successfully';

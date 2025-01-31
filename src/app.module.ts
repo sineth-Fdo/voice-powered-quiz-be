@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
+import { PassportModule } from '@nestjs/passport';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import config from './config/config';
-import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
@@ -15,15 +14,7 @@ import { PassportModule } from '@nestjs/passport';
       isGlobal: true,
       cache: true,
       load: [config],
-    }),
-
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (config) => ({
-        secret: config.get('jwt.secret')
-      }),
-      global: true,
-      inject: [ConfigService],
+      envFilePath: ['.env'],
     }),
 
     MongooseModule.forRootAsync({

@@ -15,7 +15,7 @@ export class RolesGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const user = request.user; // Assuming user is added to the request by JWT Auth guard
+    const user = request.user; 
 
     if (!user) {
       throw new ForbiddenException('Access denied: User not authenticated');
