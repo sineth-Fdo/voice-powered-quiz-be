@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import config from './config/config';
 import { UserModule } from './user/user.module';
+import { SubjectModule } from './subject/subject.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { UserModule } from './user/user.module';
 
     PassportModule.register({ defaultStrategy: 'jwt' }),
     
+    SubjectModule,
     AuthModule,
     UserModule,
   ],

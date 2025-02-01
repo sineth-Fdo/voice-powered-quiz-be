@@ -11,13 +11,12 @@ import { UserSchema } from './entities/user.entity';
 @Module({
   imports: [
     PassportModule,
-    ConfigModule, // ✅ Import ConfigModule
+    ConfigModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const secret = configService.get<string>('JWT_SECRET');
-        console.log('Loaded JWT_SECRET:', secret); // Debugging line
         return {
           secret: secret,
           signOptions: { expiresIn: '1h' },
