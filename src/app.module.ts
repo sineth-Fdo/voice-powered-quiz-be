@@ -8,6 +8,9 @@ import { AuthModule } from './auth/auth.module';
 import config from './config/config';
 import { UserModule } from './user/user.module';
 import { SubjectModule } from './subject/subject.module';
+import { QuizModule } from './quiz/quiz.module';
+import { QuestionModule } from './question/question.module';
+import { QuestionStudentListModule } from './question-student-list/question-student-list.module';
 
 @Module({
   imports: [
@@ -32,6 +35,9 @@ import { SubjectModule } from './subject/subject.module';
     SubjectModule,
     AuthModule,
     UserModule,
+    QuizModule,
+    QuestionModule,
+    QuestionStudentListModule,
   ],
   controllers: [AppController],
   providers: [AppService],
