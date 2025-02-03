@@ -78,9 +78,9 @@ jobs:
             ssh -o StrictHostKeyChecking=no -i $GITHUB_WORKSPACE/coffeeshopkey.pem ubuntu@ec2-16-171-16-255.eu-north-1.compute.amazonaws.com << EOF
           
               # Stop, remove, and clean up old containers/images
-              docker stop \$(docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
-              docker rm \$(docker ps -a -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
-              docker rmi \$(docker images -q --filter reference=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
+              # docker stop \$(docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
+              # docker rm \$(docker ps -a -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
+              # docker rmi \$(docker images -q --filter reference=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
 
               # Pull the latest image
               docker pull ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
