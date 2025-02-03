@@ -26,7 +26,7 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm@9.15.4
 
-      - name: Install dependencies 📦 ${{ secrets.DOCKER_USERNAME }}
+      - name: Install dependencies 📦 
         run: pnpm install
 
       - name: Build the NestJS project 🛠️
@@ -38,8 +38,8 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: sinethfernando2002
+          password: dckr_pat_rfNRt5XO0CYik5Wjk8SjEZ1N6dM
 
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:${{ github.sha }} .
