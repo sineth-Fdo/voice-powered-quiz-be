@@ -26,7 +26,7 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm@9.15.4
 
-      - name: Install dependencies 📦
+      - name: Install dependencies 📦 ${{ secrets.DOCKER_USERNAME }}
         run: pnpm install
 
       - name: Build the NestJS project 🛠️
