@@ -66,71 +66,29 @@ jobs:
     steps:
       - name: Deploy to EC2
         env:
-          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          HOST: ec2-16-171-16-255.eu-north-1.compute.amazonaws.com
-          USER: ubuntu
-        
+          SSH_KEY: ssh -i "coffeeshopkey.pem" ubuntu@ec2-16-171-16-255.eu-north-1.compute.amazonaws.com
+
         run: |
-          # Debug SSH directory
-          mkdir -p ~/.ssh
+
+            # Save the SSH key to a file and set appropriate permissions
+            echo "$SSH_KEY" > $GITHUB_WORKSPACE/coffeeshopkey.pem
+            chmod 600 $GITHUB_WORKSPACE/coffeeshopkey.pem
+
+            # Deploy the app to EC2 instance
+            ssh -o StrictHostKeyChecking=no -i $GITHUB_WORKSPACE/coffeeshopkey.pem ubuntu@ec2-16-171-16-255.eu-north-1.compute.amazonaws.com << EOF
           
-          # Write key with proper formatting
-          echo "$PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          
-          # Add host to known hosts
-          ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
-          
-          # Test SSH connection
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $USER@$HOST echo "SSH connection successful"
-          
-          # Deploy commands
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
-            # Stop existing containers
-            docker stop $(docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
-            docker rm $(docker ps -a -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
-            
-            # Pull and run new container
-            docker pull ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
-            docker run -d -p 8080:8080 \
-              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              -e MONGO_URI=${{ secrets.MONGO_URI }} \
+              # Stop, remove, and clean up old containers/images
+              docker stop \$(docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
+              docker rm \$(docker ps -a -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
+              docker rmi \$(docker images -q --filter reference=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
+
+              # Pull the latest image
+              docker pull ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
+
+              # Stop the running container and start a new one
+              docker stop \$(docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
+              docker run -d -p 8080:8080 \
+                -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+                -e MONGO_URI=${{ secrets.MONGO_URI }} \
               ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
-          EOF
-
-
-
-  # deploy:
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   if: github.ref == 'refs/heads/main'
-
-  #   steps:
-  #     - name: Deploy to EC2
-  #       env:
-  #         SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-
-  #       run: |
-
-  #           # Save the SSH key to a file and set appropriate permissions
-  #           echo "$SSH_KEY" > $GITHUB_WORKSPACE/coffeeshopkey.pem
-  #           chmod 400 $GITHUB_WORKSPACE/coffeeshopkey.pem
-
-  #           # Deploy the app to EC2 instance
-  #           ssh -o StrictHostKeyChecking=no -i $GITHUB_WORKSPACE/coffeeshopkey.pem ubuntu@ec2-16-171-16-255.eu-north-1.compute.amazonaws.com << EOF
-          
-  #             # Stop, remove, and clean up old containers/images
-  #             docker stop \$(docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
-  #             docker rm \$(docker ps -a -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
-  #             docker rmi \$(docker images -q --filter reference=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
-
-  #             # Pull the latest image
-  #             docker pull ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
-
-  #             # Stop the running container and start a new one
-  #             docker stop \$(docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
-  #             docker run -d -p 8080:8080 \
-  #               -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-  #               -e MONGO_URI=${{ secrets.MONGO_URI }} \
-  #             ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
-  #           EOF
+            EOF
