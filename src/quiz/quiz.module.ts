@@ -10,5 +10,6 @@ import { Quiz, QuizSchema } from './entities/quiz.entity';
   ],
   controllers: [QuizController],
   providers: [QuizService],
+  exports: [QuizService],
 })
 export class QuizModule {}
