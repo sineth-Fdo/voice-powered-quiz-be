@@ -10,5 +10,6 @@ import { Subject, SubjectSchema} from './entities/subject.entity';
   ],
   controllers: [SubjectController],
   providers: [SubjectService],
+  exports: [SubjectService],
 })
 export class SubjectModule {}
