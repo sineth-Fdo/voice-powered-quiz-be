@@ -9,7 +9,11 @@ export class CreateQuizStudentDto {
 
     @IsString()
     @Type(() => String)
-    student: string;
+    studentGrade: string;
+
+    @IsString()
+    @Type(() => String)
+    studentBatch: string;
 
     // @IsNumber()
     // @Type(() => Number)

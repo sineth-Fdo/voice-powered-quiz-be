@@ -18,7 +18,7 @@ export class AuthService {
       // register a new user
       async signup(signupData: SignupDto) {
 
-        const {email, name, password, role, grade} = signupData;
+        const {email, name, password, role, grade, batch} = signupData;
 
         const emailInUse = await this.UserModel.findOne({email});
 
@@ -33,7 +33,8 @@ export class AuthService {
             name,
             password: hashedPassword,
             role,
-            grade
+            grade,
+            batch
         });
 
         return 'User registered successfully';

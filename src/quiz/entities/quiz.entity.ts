@@ -44,6 +44,9 @@ export class Quiz extends Document {
     @Prop({ type: String, required: true })
     grade: string 
 
+    @Prop({ type: String, required: true })
+    batch: string
+
     @Prop({ type: Number, required: true })
     duration: number
 

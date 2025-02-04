@@ -25,6 +25,9 @@ export class SignupDto {
     grade: string;
 
     @IsString()
+    batch: string;
+
+    @IsString()
     status: string;
 
 
