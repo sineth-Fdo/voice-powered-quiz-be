@@ -12,6 +12,8 @@ import { QuizModule } from './quiz/quiz.module';
 import { QuestionModule } from './question/question.module';
 import { QuestionStudentListModule } from './question-student-list/question-student-list.module';
 import { QuizStudentModule } from './quiz-student/quiz-student.module';
+import { BatchModule } from './batch/batch.module';
+
 
 @Module({
   imports: [
@@ -40,6 +42,7 @@ import { QuizStudentModule } from './quiz-student/quiz-student.module';
     QuestionModule,
     QuestionStudentListModule,
     QuizStudentModule,
+    BatchModule,
   ],
   controllers: [AppController],
   providers: [AppService],

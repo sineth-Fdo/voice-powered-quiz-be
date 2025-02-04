@@ -23,34 +23,49 @@ export class QuizStudentService {
             if(!quiz) {
                 throw new Error('Quiz not found');
             }
-            
-            const student = await this.userModel.findOne({ _id : createQuizStudentDto.student , role: 'student' });
-            if(!student) {
-                throw new Error('Student not found');
+
+            // find all G-11 grade students
+            const students = await this.userModel.find({ grade: createQuizStudentDto.studentGrade, batch: createQuizStudentDto.studentBatch, role: 'student' });
+
+            if(students.length == 0) {
+                throw new Error('Students not found');
             }
-            
-            const quizStudent = await this.quizStudentModel.findOne({
-                quiz: new Types.ObjectId(createQuizStudentDto.quiz),
-                student: new Types.ObjectId(createQuizStudentDto.student),
+
+            // save all students in to tempery array
+            let temp = [];
+            students.forEach(student => {
+                temp.push({
+                    student : new Types.ObjectId(student.id),
+                });
             });
 
-            if(quizStudent) {
-                throw new Error('Quiz-Student already exists');
+            // check if temp quiz-student already exists check one by one
+            let quizStudents = [];
+            for(let i = 0; i < temp.length; i++) {
+                quizStudents.push(await this.quizStudentModel.findOne({
+                    quiz: new Types.ObjectId(createQuizStudentDto.quiz),
+                    student: temp[i].student,
+                }));
             }
 
-            const quizId = new Types.ObjectId(createQuizStudentDto.quiz);
-            const studentId = new Types.ObjectId(createQuizStudentDto.student);
-
+            for (let i = 0; i < quizStudents.length; i++) {
+                if(quizStudents[i] != null) {
+                    throw new Error('Quiz-Student already exists');
+                }
+            }
 
             // Create a new quiz-student
-            await this.quizStudentModel.create({
-                quiz : quizId,
-                student : studentId,
-            });
+            for(let i = 0; i < temp.length; i++) {
+                await this.quizStudentModel.create({
+                    quiz : new Types.ObjectId(createQuizStudentDto.quiz),
+                    student : new Types.ObjectId(temp[i].student),
+                });
+            }
 
             return {
                 message : "Quiz-Student created successfully",
             };
+
         } catch (error) {
             return {
                 message : error.message,

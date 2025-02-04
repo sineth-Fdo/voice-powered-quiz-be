@@ -22,6 +22,9 @@ export class User extends Document {
   @Prop({ type: String, required: false })
   grade: string;
 
+  @Prop({ type: String, required: false })
+  batch: string;
+
   @Prop({
     type: String,
     default: 'active',

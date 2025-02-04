@@ -27,6 +27,9 @@ export class CreateQuizDto {
     @IsString()
     grade: string;
 
+    @IsString()
+    batch: string;
+
     @IsNumber()
     duration: number;
 
