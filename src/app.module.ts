@@ -11,6 +11,7 @@ import { SubjectModule } from './subject/subject.module';
 import { QuizModule } from './quiz/quiz.module';
 import { QuestionModule } from './question/question.module';
 import { QuestionStudentListModule } from './question-student-list/question-student-list.module';
+import { QuizStudentModule } from './quiz-student/quiz-student.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { QuestionStudentListModule } from './question-student-list/question-stud
     QuizModule,
     QuestionModule,
     QuestionStudentListModule,
+    QuizStudentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
