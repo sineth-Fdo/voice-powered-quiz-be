@@ -64,6 +64,18 @@ jobs:
     # if: github.ref == 'refs/heads/main'
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check GITHUB_WORKSPACE
+        run: echo $GITHUB_WORKSPACE
+
+
+      - name: Save SSH key to file
+        run: |
+          echo "$SSH_KEY" > "$GITHUB_WORKSPACE/quiz-be.pem"
+          chmod 600 "$GITHUB_WORKSPACE/quiz-be.pem"
+    
       - name: Deploy to EC2
         env:
           SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
