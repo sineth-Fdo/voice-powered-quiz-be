@@ -70,22 +70,16 @@ jobs:
           SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
 
         run: |
-
-            # # Save the SSH key to a file and set appropriate permissions
-            # echo "$SSH_KEY" > $GITHUB_WORKSPACE/quiz-be.pem
-            # chmod 600 $GITHUB_WORKSPACE/quiz-be.pem
-
+            echo "$SSH_KEY" > $GITHUB_WORKSPACE/quiz-be.pem
+            chmod 600 $GITHUB_WORKSPACE/quiz-be.pem
             # Deploy the app to EC2 instance
             ssh -o StrictHostKeyChecking=no -i $GITHUB_WORKSPACE/quiz-be.pem ubuntu@ec2-16-171-16-255.eu-north-1.compute.amazonaws.com << EOF
-          
               # Stop, remove, and clean up old containers/images
               docker stop \$(docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
               docker rm \$(docker ps -a -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
               docker rmi \$(docker images -q --filter reference=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
-
               # Pull the latest image
               docker pull ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
-
               # Stop the running container and start a new one
               docker stop \$(docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
               docker run -d -p 8080:8080 \
