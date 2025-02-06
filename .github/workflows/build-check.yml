@@ -42,21 +42,21 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:${{ github.sha }} .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0 .
 
-      - name: Tag Docker image
-        run: docker tag ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:latest
+      # - name: Tag Docker image
+      #   run: docker tag ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:latest
 
       - name: Push Docker images
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:${{ github.sha }}
-          docker push ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:latest
-
-      - name: Update v1.0 tag
-        if: github.ref == 'refs/heads/main'
-        run: |
-          docker tag ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
+          # docker push ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:${{ github.sha }}
           docker push ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
+
+      # - name: Update v1.0 tag
+      #   if: github.ref == 'refs/heads/main'
+      #   run: |
+      #     docker tag ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
+      #     docker push ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
 
   # deploy:
   #   needs: build
@@ -72,17 +72,42 @@ jobs:
   #           echo "$SSH_KEY" > $GITHUB_WORKSPACE/quiz-be.pem
   #           chmod 600 $GITHUB_WORKSPACE/quiz-be.pem
   #           ssh -o StrictHostKeyChecking=no -i $GITHUB_WORKSPACE/quiz-be.pem ubuntu@ec2-16-171-16-255.eu-north-1.compute.amazonaws.com << EOF
-  #             # docker stop \$(docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0)
-  #             # docker rm \$(docker ps -a -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0)
-  #             # docker rmi \$(docker images -q --filter reference=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0)
+  #             # docker stop $(docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0)
+  #             # docker rm $(docker ps -a -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0)
+  #             # docker rmi $(docker images -q --filter reference=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0)
 
   #             # Pull the latest image
   #             docker pull ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
 
   #             # Stop the running container and start a new one
-  #             docker stop \$(docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
-  #             docker run -d -p 8080:8080 \
-  #               -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-  #               -e MONGO_URI=${{ secrets.MONGO_URI }} \
-  #             ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
+  #             docker stop $(docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
+  #             docker run -d -p 8080:8080 -e JWT_SECRET=${{ secrets.JWT_SECRET }} -e MONGO_URI=${{ secrets.MONGO_URI }} ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
+  #           EOF
+
+
+  
+  # deploy:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/main'
+
+  #   steps:
+  #     - name: Deploy to EC2
+  #       env:
+  #         SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+
+  #       run: |
+  #           echo "$SSH_KEY" > $GITHUB_WORKSPACE/quiz-be.pem
+  #           chmod 600 $GITHUB_WORKSPACE/quiz-be.pem
+  #           ssh -o StrictHostKeyChecking=no -i $GITHUB_WORKSPACE/quiz-be.pem ubuntu@ec2-16-171-16-255.eu-north-1.compute.amazonaws.com << EOF
+  #             # docker stop $(docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0)
+  #             # docker rm $(docker ps -a -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0)
+  #             # docker rmi $(docker images -q --filter reference=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0)
+
+  #             # Pull the latest image
+  #             docker pull ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
+
+  #             # Stop the running container and start a new one
+  #             docker stop $(docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0) || true
+  #             docker run -d -p 8080:8080 -e JWT_SECRET=${{ secrets.JWT_SECRET }} -e MONGO_URI=${{ secrets.MONGO_URI }} ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
   #           EOF
