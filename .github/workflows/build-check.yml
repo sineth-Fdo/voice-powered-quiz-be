@@ -74,26 +74,27 @@ jobs:
             port: 22
             script: |
               echo "Stopping and removing old container..."
-              CONTAINER_ID=$(docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0)
+              CONTAINER_ID=$(docker ps -q --filter "ancestor=${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0")
               if [ ! -z "$CONTAINER_ID" ]; then
                 docker stop $CONTAINER_ID
                 docker rm $CONTAINER_ID
               fi
-    
+              
               echo "Removing old Docker image..."
               IMAGE_ID=$(docker images -q ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0)
               if [ ! -z "$IMAGE_ID" ]; then
                 docker rmi -f $IMAGE_ID
               fi
-    
+              
               echo "Pulling new Docker image..."
               docker pull ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
-    
+              
               echo "Running new container..."
               docker run -d -p 8080:8080 --name voice-powered-quiz-be \
                 -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
                 -e MONGO_URI=${{ secrets.MONGO_URI }} \
                 ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
+
                 
 
     
