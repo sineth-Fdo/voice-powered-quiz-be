@@ -41,6 +41,22 @@ export class QuizService {
         throw new BadRequestException('No student found with this grade and batch');
       }
 
+      // check if the startTime is not yesterday or before
+      const currentDate = new Date().toISOString().split('T')[0];
+      const startDate = createQuizDto.startDate;
+      
+      if(startDate < currentDate) {
+        throw new BadRequestException('Start date cannot be yesterday or before');
+      }
+
+      // give the startTime and endTime duration in minutes
+      const startTime = new Date(createQuizDto.startDate + ' ' + createQuizDto.startTime);
+      const endTime = new Date(createQuizDto.startDate + ' ' + createQuizDto.endTime);
+      const duration = (endTime.getTime() - startTime.getTime()) / 60000;
+
+      const durationHours = Math.floor(duration / 60);
+      const durationMinutes = duration % 60;
+
       // Create a new quiz
       const quiz = await this.quizModel.create({
         teacher,
@@ -52,11 +68,14 @@ export class QuizService {
         status: createQuizDto.status,
         grade: createQuizDto.grade,
         batch: createQuizDto.batch,
-        duration: createQuizDto.duration,
+        duration: duration,
+        durationHours: durationHours,
+        durationMinutes: durationMinutes,
         totalMarks: createQuizDto.totalMarks,
         passingMarks: createQuizDto.passingMarks,
         startDate: createQuizDto.startDate,
-        endDate: createQuizDto.endDate
+        startTime: createQuizDto.startTime,
+        endTime: createQuizDto.endTime,
         
       });
 

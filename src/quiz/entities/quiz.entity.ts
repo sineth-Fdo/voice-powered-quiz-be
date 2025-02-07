@@ -47,8 +47,14 @@ export class Quiz extends Document {
     @Prop({ type: String, required: true })
     batch: string
 
-    @Prop({ type: Number, required: true })
+    @Prop({ type: Number, required: false })
     duration: number
+
+    @Prop({ type: Number, required: false })
+    durationHours : number
+
+    @Prop({ type: Number, required: false })
+    durationMinutes: number
 
     @Prop({ type: Number, required: true })
     totalMarks: number
@@ -56,11 +62,14 @@ export class Quiz extends Document {
     @Prop({ type: Number, required: true })
     passingMarks: number
 
-    @Prop({ type: Date, required: false, default: Date.now })
-    startDate: Date
+    @Prop({ type: String, required: false })
+    startDate: String
 
-    @Prop({ type: Date, required: false, default: Date.now })
-    endDate: Date
+    @Prop({ type: String, required: false })
+    startTime: String
+
+    @Prop({ type: String, required: false })
+    endTime: String
 
 
 }
