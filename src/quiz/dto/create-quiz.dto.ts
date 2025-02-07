@@ -34,19 +34,30 @@ export class CreateQuizDto {
     duration: number;
 
     @IsNumber()
+    durationHours: number;
+
+    @IsNumber()
+    durationMinutes: number;
+
+    @IsNumber()
     totalMarks: number;
 
     @IsNumber()
     passingMarks: number;
 
-    @IsDate()
+    @IsString()
     @IsNotEmpty()
-    @Type(() => Date)
-    startDate: Date;
+    @Type(() => String)
+    startDate: String;
 
-    @IsDate()
+    @IsString()
     @IsNotEmpty()
-    @Type(() => Date)
-    endDate: Date;
+    @Type(() => String)
+    startTime: String;
+
+    @IsString()
+    @IsNotEmpty()
+    @Type(() => String)
+    endTime: String;
     
 }
