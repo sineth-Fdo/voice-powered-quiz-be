@@ -21,8 +21,8 @@ export class Quiz extends Document {
 
     @Prop({ 
         type: String,
-        default: 'not-started',
-        enum: ['not-started', 'started', 'completed'],
+        default: 'pending',
+        enum: ['pending','not-started', 'started', 'completed'],
         required: false,
     })
     status: string;
@@ -56,10 +56,13 @@ export class Quiz extends Document {
     @Prop({ type: Number, required: false })
     durationMinutes: number
 
-    @Prop({ type: Number, required: true })
-    totalMarks: number
+    @Prop({ type: Number, required: true, default: 0 })
+    quizTotalMarks: number
 
-    @Prop({ type: Number, required: true })
+    @Prop({ type: Number, required: true, default: 0 })
+    quizTotalQuestions: number
+
+    @Prop({ type: Number, required: true, default: 0 })
     passingMarks: number
 
     @Prop({ type: String, required: false })

@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { QuizStudent } from './entities/quiz-student.entity';
 import { Model, Types } from 'mongoose';
-import { CreateQuizStudentDto } from './dto/create-quiz-student.dto';
-import { Quiz } from 'src/quiz/entities/quiz.entity';
 import { User } from 'src/auth/entities/user.entity';
+import { Quiz } from 'src/quiz/entities/quiz.entity';
+import { CreateQuizStudentDto } from './dto/create-quiz-student.dto';
+import { QuizStudent } from './entities/quiz-student.entity';
 
 @Injectable()
 export class QuizStudentService {
@@ -70,6 +70,25 @@ export class QuizStudentService {
             return {
                 message : error.message,
             };
+        }
+    }
+
+    // Delete all quiz-student with this quizId
+    async deleteAllQuizStudents(quizId: string) {
+        try {
+
+            // find all quiz-student with this quizId
+            await this.quizStudentModel.deleteMany({
+                quiz : new Types.ObjectId(quizId),
+            });
+
+            return {
+                message: 'All quiz-students deleted successfully',
+            };
+
+        } catch (error) {
+            console.error('Error deleting quiz-students:', error);
+            throw new Error(error.message);
         }
     }
 

@@ -38,5 +38,20 @@ export class QuestionStudentListService {
     
   }
 
+  // Find all question-student-list and delete
+  async deleteAllQuestionStudentList(questionIds: string[]) {
+    try {
+      for(let i = 0; i < questionIds.length; i++) {
+        await this.questionStudentListModel.deleteMany({ question: new Types.ObjectId(questionIds[i]) });
+      }
+      return {
+        message: 'All question-student-list deleted successfully',
+      };
+    }catch(err) {
+      throw new BadRequestException(`Error: ${err.message}`);
+    }
+   
+  }
+
 
 }

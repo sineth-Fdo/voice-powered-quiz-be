@@ -1,6 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { QuizStudentService } from './quiz-student.service';
+import { Body, Controller, Delete, Param, Post } from '@nestjs/common';
 import { CreateQuizStudentDto } from './dto/create-quiz-student.dto';
+import { QuizStudentService } from './quiz-student.service';
 
 @Controller('quiz-student')
 export class QuizStudentController {
@@ -9,6 +9,13 @@ export class QuizStudentController {
   @Post('create')
   create(@Body() createQuizStudentDto: CreateQuizStudentDto) {
     return this.quizStudentService.create(createQuizStudentDto);
+  }
+
+  @Delete('delete/:quizId')
+  delete(
+    @Param('quizId') quizId: string,
+  ) {
+    return this.quizStudentService.deleteAllQuizStudents(quizId);
   }
 
 
