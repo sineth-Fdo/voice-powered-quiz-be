@@ -1,10 +1,14 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Cron } from '@nestjs/schedule';
+import * as moment from 'moment-timezone';
 import { Model, Types } from 'mongoose';
-import { CreateQuizDto } from './dto/create-quiz.dto';
-import { Quiz } from './entities/quiz.entity';
-import { QuizStudentService } from 'src/quiz-student/quiz-student.service';
 import { User } from 'src/auth/entities/user.entity';
+import { QuestionService } from 'src/question/question.service';
+import { QuizStudentService } from 'src/quiz-student/quiz-student.service';
+import { CreateQuizDto } from './dto/create-quiz.dto';
+import { UpdateTotalsDto } from './dto/update-totals.dto';
+import { Quiz } from './entities/quiz.entity';
 
 @Injectable()
 export class QuizService {
@@ -12,7 +16,8 @@ export class QuizService {
   constructor(
     @InjectModel(Quiz.name) private quizModel: Model<Quiz>,
     @InjectModel(User.name) private userModel: Model<User>,
-    private readonly quizStudentService: QuizStudentService
+    private readonly quizStudentService: QuizStudentService,
+    private readonly questionService: QuestionService,
   ) {}
 
   // Create a new quiz
@@ -71,7 +76,8 @@ export class QuizService {
         duration: duration,
         durationHours: durationHours,
         durationMinutes: durationMinutes,
-        totalMarks: createQuizDto.totalMarks,
+        quizTotalMarks: createQuizDto.quizTotalMarks,
+        quizTotalQuestions: createQuizDto.quizTotalQuestions,
         passingMarks: createQuizDto.passingMarks,
         startDate: createQuizDto.startDate,
         startTime: createQuizDto.startTime,
@@ -102,4 +108,91 @@ export class QuizService {
     
   }
 
+  // Delete a quiz
+  async delete(quizId: string) {
+    try {
+
+      // Check if the quiz exists
+      const quizExist = await this.quizModel.findById(quizId);
+      if(!quizExist) {
+        throw new BadRequestException('Quiz not found');
+      }
+
+      // Delete all quiz-student with this quizId
+      await this.quizStudentService.deleteAllQuizStudents(quizId);
+
+      // Delete all questions and student-list with this quizId 
+      await this.questionService.deleteAllQuestionsAndStudentList(quizId); 
+
+      // Delete the quiz
+      await this.quizModel.findByIdAndDelete(quizId);
+
+      return {
+        message: 'Quiz deleted successfully',
+      };
+
+    }catch(err) {
+      throw new BadRequestException(`Error: ${err.message}`);
+    }
+  }
+
+
+
+  // Update the totals of a quiz
+  async updateTotals(quizId: string, updateTotalsDto: UpdateTotalsDto) {
+    try {
+
+      // Check if the quiz exists
+      const quizExist = await this.quizModel.findById(quizId);
+      if(!quizExist) {
+        throw new BadRequestException('Quiz not found');
+      }
+
+      const quizTotalMarks = updateTotalsDto.quizTotalMarks;
+      const quizPassingMarks = updateTotalsDto.passingMarks;
+
+      if (quizTotalMarks <= quizPassingMarks) {
+        throw new BadRequestException('Total marks cannot be greater than passing marks');
+      }
+
+      // Update the quiz
+      await this.quizModel.findByIdAndUpdate(quizId, updateTotalsDto);
+
+      return {
+        message: 'Quiz totals updated successfully',
+      };
+
+    }catch(err) {
+      throw new BadRequestException(`Error: ${err.message}`);
+    }
+  }
+
+
+
+  // every 10 seconds
+  @Cron('*/10 * * * * *')
+  async checkAndStartQuizzes() {
+
+    // get the local time
+    const localISOTime = moment().tz('Asia/Colombo').format("YYYY-MM-DDTHH:mm:ss.SSSZ");
+    
+    const currentDate = localISOTime.split('T')[0];
+    const currentTime = localISOTime.split('T')[1].split('.')[0].split(':').slice(0, 2).join(':');
+    const currentDateTime = currentDate + ' ' + currentTime;
+
+    const allQuizzes = await this.quizModel.find({ status: 'not-started' });
+    
+
+    allQuizzes.forEach(async (quiz) => {
+      const quizStartTime = quiz.startDate + ' ' + quiz.startTime;
+      if(quizStartTime === currentDateTime) {
+        await this.quizModel.findByIdAndUpdate(quiz._id, { status: 'started' });
+        console.log(`Quiz ${quiz.title} started`);
+      }
+    });
+
+  }
+
 }
+
+

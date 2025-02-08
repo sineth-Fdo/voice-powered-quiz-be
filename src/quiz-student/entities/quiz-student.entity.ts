@@ -33,7 +33,7 @@ export class QuizStudent extends Document {
     @Prop({ type: Number, required: false, default: 0 })
     incorrectAnswers: number
 
-    @Prop({ type: Boolean, required: false, default: true })
+    @Prop({ type: Boolean, required: false, default: false })
     attempted: boolean
 
     @Prop({ type: Number, required: false, default: 0 })

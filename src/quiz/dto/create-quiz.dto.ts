@@ -40,7 +40,10 @@ export class CreateQuizDto {
     durationMinutes: number;
 
     @IsNumber()
-    totalMarks: number;
+    quizTotalMarks: number;
+
+    @IsNumber()
+    quizTotalQuestions: number;
 
     @IsNumber()
     passingMarks: number;
