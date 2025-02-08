@@ -1,5 +1,6 @@
 FROM node:18-alpine AS base
 
+RUN apk add --no-cache openssl
 RUN npm i -g pnpm@9.15.4
 
 FROM base AS dependencies
