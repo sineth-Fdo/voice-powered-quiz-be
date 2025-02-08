@@ -1,4 +1,4 @@
-FROM node:18-alpine AS base
+FROM node:18 AS base
 
 RUN apk add --no-cache openssl
 RUN npm i -g pnpm@9.15.4
