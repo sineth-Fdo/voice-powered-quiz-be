@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Cron } from '@nestjs/schedule';
 import * as moment from 'moment-timezone';
 import { Model, Types } from 'mongoose';
 import { User } from 'src/auth/entities/user.entity';
@@ -9,6 +8,7 @@ import { QuizStudentService } from 'src/quiz-student/quiz-student.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateTotalsDto } from './dto/update-totals.dto';
 import { Quiz } from './entities/quiz.entity';
+
 
 @Injectable()
 export class QuizService {
@@ -19,6 +19,10 @@ export class QuizService {
     private readonly quizStudentService: QuizStudentService,
     private readonly questionService: QuestionService,
   ) {}
+
+  onModuleInit() {
+    this.startQuizCheckingInterval();
+  }
 
   // Create a new quiz
   async create(createQuizDto: CreateQuizDto) {
@@ -169,27 +173,27 @@ export class QuizService {
 
 
 
-  // every 10 seconds
-  @Cron('*/10 * * * * *')
-  async checkAndStartQuizzes() {
+  async startQuizCheckingInterval() {
 
-    // get the local time
-    const localISOTime = moment().tz('Asia/Colombo').format("YYYY-MM-DDTHH:mm:ss.SSSZ");
-    
-    const currentDate = localISOTime.split('T')[0];
-    const currentTime = localISOTime.split('T')[1].split('.')[0].split(':').slice(0, 2).join(':');
-    const currentDateTime = currentDate + ' ' + currentTime;
+    setInterval(async () => {
+      //  get the local time
+      const localISOTime = moment().tz('Asia/Colombo').format("YYYY-MM-DDTHH:mm:ss.SSSZ");
+      
+      const currentDate = localISOTime.split('T')[0];
+      const currentTime = localISOTime.split('T')[1].split('.')[0].split(':').slice(0, 2).join(':');
+      const currentDateTime = currentDate + ' ' + currentTime;
 
-    const allQuizzes = await this.quizModel.find({ status: 'not-started' });
-    
+      const allQuizzes = await this.quizModel.find({ status: 'not-started' });
+      
+      allQuizzes.forEach(async (quiz) => {
+        const quizStartTime = quiz.startDate + ' ' + quiz.startTime;
+        if(quizStartTime === currentDateTime) {
+          await this.quizModel.findByIdAndUpdate(quiz._id, { status: 'started' });
+        }
+      });
+  }, 1000); // 1 seconds
 
-    allQuizzes.forEach(async (quiz) => {
-      const quizStartTime = quiz.startDate + ' ' + quiz.startTime;
-      if(quizStartTime === currentDateTime) {
-        await this.quizModel.findByIdAndUpdate(quiz._id, { status: 'started' });
-        console.log(`Quiz ${quiz.title} started`);
-      }
-    });
+  
 
   }
 
