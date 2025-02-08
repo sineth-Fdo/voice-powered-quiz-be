@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Param, Patch, Post } from '@nestjs/common';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { QuizService } from './quiz.service';
 import { UpdateTotalsDto } from './dto/update-totals.dto';
+import { UpdateStatusDto } from './dto/update-status.dto';
 
 @Controller('quiz')
 export class QuizController {
@@ -25,6 +26,14 @@ export class QuizController {
     @Body() UpdateTotalsDto: UpdateTotalsDto,
   ) {
     return this.quizService.updateTotals(quizId, UpdateTotalsDto);
+  }
+
+  @Patch('update-status/:quizId')
+  updateStatus(
+    @Param('quizId') quizId: string,
+    @Body() updateStatusDto: UpdateStatusDto,
+  ) {
+    return this.quizService.updateStatus(quizId, updateStatusDto);
   }
 
 }

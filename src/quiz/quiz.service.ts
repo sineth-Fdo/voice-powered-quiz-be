@@ -8,6 +8,7 @@ import { QuizStudentService } from 'src/quiz-student/quiz-student.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateTotalsDto } from './dto/update-totals.dto';
 import { Quiz } from './entities/quiz.entity';
+import { UpdateStatusDto } from './dto/update-status.dto';
 
 
 @Injectable()
@@ -171,8 +172,30 @@ export class QuizService {
     }
   }
 
+  // Update the status of a quiz
+  async updateStatus(quizId: string, updateStatusDto: UpdateStatusDto) {
+    try {
+
+      // Check if the quiz exists
+      const quizExist = await this.quizModel.findById(quizId);
+      if(!quizExist) {
+        throw new BadRequestException('Quiz not found');
+      }
+
+      // Update the quiz
+      await this.quizModel.findByIdAndUpdate(quizId, { status: updateStatusDto.status });
+
+      return {
+        message: 'Quiz status updated successfully',
+      };
+
+    }catch(err) {
+      throw new BadRequestException(`Error: ${err.message}`);
+    }
+  }
 
 
+// quiz status changing interval
   async startQuizCheckingInterval() {
 
     setInterval(async () => {
@@ -183,6 +206,7 @@ export class QuizService {
       const currentTime = localISOTime.split('T')[1].split('.')[0].split(':').slice(0, 2).join(':');
       const currentDateTime = currentDate + ' ' + currentTime;
 
+      // starting the quizes
       const allQuizzes = await this.quizModel.find({ status: 'not-started' });
       
       allQuizzes.forEach(async (quiz) => {
@@ -191,6 +215,17 @@ export class QuizService {
           await this.quizModel.findByIdAndUpdate(quiz._id, { status: 'started' });
         }
       });
+
+      // completing the quizes
+      const allQuizzesStarted = await this.quizModel.find({ status: 'started' });
+
+      allQuizzesStarted.forEach(async (quiz) => {
+        const quizEndTime = quiz.startDate + ' ' + quiz.endTime;
+        if(quizEndTime === currentDateTime) {
+          await this.quizModel.findByIdAndUpdate(quiz._id, { status: 'completed' });
+        }
+      });
+
   }, 1000); // 1 seconds
 
   
