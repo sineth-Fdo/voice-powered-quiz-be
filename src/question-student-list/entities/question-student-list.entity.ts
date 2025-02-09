@@ -14,12 +14,24 @@ export class QuestionStudentList extends Document {
     })
     question : Types.ObjectId;
 
-    @Prop({ required: false, type: Array, default: [] })
-    correct : string[];
+    @Prop({ required: false, type: [
+      {
+        studentId : Types.ObjectId,
+      }
+    ], default: [] })
+    correct : {
+      studentId : Types.ObjectId,
+    }[];
 
 
-    @Prop({ required: false, type: Array, default: [] })
-    incorrect : string[];
+    @Prop({ required: false, type: [
+      {
+        studentId : Types.ObjectId
+      }
+    ], default: [] })
+    incorrect : {
+      studentId : Types.ObjectId,
+    }[];
 
 }
 

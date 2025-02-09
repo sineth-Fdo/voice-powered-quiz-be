@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { QuizStudent, QuizStudentSchema } from './entities/quiz-student.entity';
 import { Quiz, QuizSchema } from 'src/quiz/entities/quiz.entity';
 import { User, UserSchema } from 'src/auth/entities/user.entity';
+import { Question, QuestionSchema } from 'src/question/entities/question.entity';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { User, UserSchema } from 'src/auth/entities/user.entity';
       { name: QuizStudent.name, schema: QuizStudentSchema },
       { name: Quiz.name, schema: QuizSchema },
       { name: User.name, schema: UserSchema },
+      { name: Question.name, schema: QuestionSchema },
     ]),
   ],
   controllers: [QuizStudentController],
