@@ -44,16 +44,14 @@ export class QuizStudent extends Document {
 
     @Prop({ 
         type: [{
-            questionNumber: Number,
+            questionId: Types.ObjectId,
             answer: String,
-            participantAnswer: Boolean,
         }],
         required: false,
     })
     answeredQuestions: {
-            questionNumber: Number,
+            questionId: Types.ObjectId,
             answer: String,
-            participantAnswer: Boolean,
     }[];
 
 }

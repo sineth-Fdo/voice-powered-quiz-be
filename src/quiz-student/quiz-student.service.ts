@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User } from 'src/auth/entities/user.entity';
 import { Quiz } from 'src/quiz/entities/quiz.entity';
 import { CreateQuizStudentDto } from './dto/create-quiz-student.dto';
 import { QuizStudent } from './entities/quiz-student.entity';
+import { Question } from 'src/question/entities/question.entity';
 
 @Injectable()
 export class QuizStudentService {
@@ -13,6 +14,7 @@ export class QuizStudentService {
         @InjectModel(QuizStudent.name) private quizStudentModel: Model<QuizStudent>,
         @InjectModel(Quiz.name) private quizModel: Model<Quiz>,
         @InjectModel(User.name) private userModel: Model<User>,
+        @InjectModel(Question.name) private questionModel: Model<Question>,
     ) {}
 
     // Create a new quiz-student
@@ -88,6 +90,68 @@ export class QuizStudentService {
 
         } catch (error) {
             console.error('Error deleting quiz-students:', error);
+            throw new Error(error.message);
+        }
+    }
+
+    // update student answer marks and counts in quiz-student
+    async updateStudentAnswerMarksAndCounts(quizId: string, studentId: string, questionId: string, correct: boolean, studentAnswer: string) {
+        try {
+
+            const quizStudent = await this.quizStudentModel.findOne({
+                quiz : new Types.ObjectId(quizId),
+                student : new Types.ObjectId(studentId),
+            });
+            if(!quizStudent) {
+                throw new Error('Quiz-Student not found');
+            }
+
+            // find this question in quiz-student answeredQuestions array
+            const answeredQuestion = quizStudent.answeredQuestions.find(
+                answeredQuestion => answeredQuestion.questionId.toString() === questionId
+            );
+            if(answeredQuestion) {
+                throw new Error('Question already answered');
+            }
+
+
+            // get question marks
+            const question = await this.questionModel.findOne({ _id: questionId });
+            if(!question) {
+                throw new Error('Question not found');
+            }
+
+            // get question marks
+            const marks = question.marks;
+            const previousCorrectMarks = quizStudent.correctMarks;
+            const previousIncorrectMarks = quizStudent.incorrectMarks;
+            const previousCorrectAnswers = quizStudent.correctAnswers;
+            const previousIncorrectAnswers = quizStudent.incorrectAnswers;
+
+            // find and update student answer marks and counts
+            if(correct) {
+                quizStudent.correctMarks = previousCorrectMarks + marks;
+                quizStudent.correctAnswers = previousCorrectAnswers + 1;
+            } else {
+                quizStudent.incorrectMarks = previousIncorrectMarks + marks;
+                quizStudent.incorrectAnswers = previousIncorrectAnswers + 1;                
+            }
+            await quizStudent.save();
+
+            quizStudent.totalMarks = quizStudent.correctMarks;
+            quizStudent.totalQuestions = quizStudent.correctAnswers + quizStudent.incorrectAnswers;
+            quizStudent.attempted = true;
+
+            // student id and answer push to quizStudents answeredQuestions array
+            quizStudent.answeredQuestions.push({
+                questionId : new Types.ObjectId(questionId),
+                answer : studentAnswer,
+            });
+
+            await quizStudent.save();
+        
+
+        } catch (error) {
             throw new Error(error.message);
         }
     }

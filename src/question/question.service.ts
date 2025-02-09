@@ -5,6 +5,9 @@ import { QuestionStudentListService } from 'src/question-student-list/question-s
 import { Quiz } from 'src/quiz/entities/quiz.entity';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { Question } from './entities/question.entity';
+import { CheckAnswerDto } from './dto/check-answer.dto';
+import { User } from 'src/auth/entities/user.entity';
+import { QuizStudentService } from 'src/quiz-student/quiz-student.service';
 
 @Injectable()
 export class QuestionService {
@@ -12,7 +15,9 @@ export class QuestionService {
   constructor(
     @InjectModel(Question.name) private questionModel: Model<Question>,
     @InjectModel(Quiz.name) private quizModel: Model<Quiz>,
+    @InjectModel(User.name) private userModel: Model<User>,
     private readonly questionStudentListService: QuestionStudentListService,
+    private readonly quizStudentService: QuizStudentService,
   ) {}
 
   // Create a new question function
@@ -85,6 +90,54 @@ export class QuestionService {
       throw new BadRequestException(`Error: ${err.message}`);
     }
   }
+
+  // Check answer function
+  async checkAnswer(checkAnswerDto: CheckAnswerDto) {
+    try {
+      const quiz = await this.quizModel.findOne({ _id: checkAnswerDto.quizId });
+      if(!quiz) {
+        throw new BadRequestException('Quiz not found');
+      }
+      
+      const question = await this.questionModel.findOne({ _id: checkAnswerDto.questionId });
+      if(!question) {
+        throw new BadRequestException('Question not found');
+      }
+
+      const student = await this.userModel.findOne({ _id: checkAnswerDto.studentId });
+      if(!student) {
+        throw new BadRequestException('Student not found');
+      }
+
+      const studentAnswer = checkAnswerDto.studentAnswer;
+      const correctAnswer = question.correctAnswer;
+
+      if (studentAnswer === correctAnswer) {
+
+        await this.questionStudentListService.pushStudentToCorrectOrIncorrectArray(question._id.toString(), student._id.toString(), true);
+        await this.quizStudentService.updateStudentAnswerMarksAndCounts(quiz._id.toString(), student._id.toString(), question._id.toString(), true, checkAnswerDto.studentAnswer);
+        
+        return {
+          message: 'Correct answer',
+          
+        };
+      }else {
+        
+        await this.questionStudentListService.pushStudentToCorrectOrIncorrectArray(question._id.toString(), student._id.toString(), false);
+        await this.quizStudentService.updateStudentAnswerMarksAndCounts(quiz._id.toString(), student._id.toString(), question._id.toString(), false, checkAnswerDto.studentAnswer);
+
+        return {
+          message: 'Incorrect answer',
+        };
+      }
+
+
+    }catch(err) {
+      throw new BadRequestException(`Error: ${err.message}`);
+    }
+  }
+
+
 
 
 }

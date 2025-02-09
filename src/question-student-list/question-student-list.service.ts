@@ -50,7 +50,41 @@ export class QuestionStudentListService {
     }catch(err) {
       throw new BadRequestException(`Error: ${err.message}`);
     }
-   
+  }
+
+  // push students to correct or incorrect array
+  async pushStudentToCorrectOrIncorrectArray(questionId: string, studentId: string, correct: boolean) {
+    try {
+
+      const questionStudentList = await this.questionStudentListModel.findOne({ question: new Types.ObjectId(questionId) });
+      if(!questionStudentList) {
+        throw new BadRequestException('Question student list not found');
+      }
+
+      // is student already in correct or incorrect array
+      const studentExistInCorrect = questionStudentList.correct.find(student => student.studentId.toString() === studentId);
+      const studentExistInIncorrect = questionStudentList.incorrect.find(student => student.studentId.toString() === studentId);
+
+      if(studentExistInCorrect || studentExistInIncorrect) {
+        throw new BadRequestException('Student already in correct or incorrect array');
+      }
+      
+
+      if(correct) {
+        questionStudentList.correct.push({ studentId: new Types.ObjectId(studentId) });
+      }else {
+        questionStudentList.incorrect.push({ studentId: new Types.ObjectId(studentId)});
+      }
+
+      await questionStudentList.save();
+
+      return {
+        message: 'Student pushed to correct or incorrect array successfully',
+      };
+
+    }catch(err) {
+      throw new BadRequestException(`Error: ${err.message}`);
+    }
   }
 
 
