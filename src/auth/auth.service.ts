@@ -60,14 +60,12 @@ export class AuthService {
       }
 
       // Genarate JWT token 
-      
-
-      return  this.generateTokens(user.id);
+      return  this.generateTokens(user.id, user.role);
   }
 
 
-  async generateTokens(userId: string) {
-    const payload: AuthJwtPayload = { sub: userId };
+  async generateTokens(userId: string , role: string) {
+    const payload: AuthJwtPayload = { uid: userId, role };
     const accessToken = await this.jwtService.signAsync(payload); // Signs the JWT token
   
     return {

@@ -14,5 +14,6 @@ services:
     environment:
       - JWT_SECRET=
       - MONGO_URI=
+      - FRONTEND_URL=
     depends_on:
       - mongo
