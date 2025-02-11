@@ -84,5 +84,6 @@ jobs:
               docker run -d -p 8080:8080 --name voice-powered-quiz-be \
                 -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
                 -e MONGO_URI=${{ secrets.MONGO_URI }} \
+                -e FRONTEND_URL=${{ secrets.FRONTEND_URL }} \
                 ${{ secrets.DOCKER_USERNAME }}/voice-powered-quiz-be:v1.0
 
