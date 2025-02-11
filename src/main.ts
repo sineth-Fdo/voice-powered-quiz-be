@@ -10,5 +10,7 @@ async function bootstrap() {
     allowedHeaders: "Content-Type, Authorization",
   });
   await app.listen(process.env.PORT ?? 8080);
+  const frontedndUrl = process.env.FRONTEND_URL ?? "http://localhost:3000";
+  console.log(`Application is running on: ${frontedndUrl}`);
 }
 bootstrap();
