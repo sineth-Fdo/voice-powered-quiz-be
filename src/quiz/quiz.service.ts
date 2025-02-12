@@ -3,12 +3,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as moment from 'moment-timezone';
 import { Model, Types } from 'mongoose';
 import { User } from 'src/auth/entities/user.entity';
+import { Batch } from 'src/batch/entities/batch.entity';
 import { QuestionService } from 'src/question/question.service';
 import { QuizStudentService } from 'src/quiz-student/quiz-student.service';
+import { Subject } from 'src/subject/entities/subject.entity';
 import { CreateQuizDto } from './dto/create-quiz.dto';
+import { UpdateStatusDto } from './dto/update-status.dto';
 import { UpdateTotalsDto } from './dto/update-totals.dto';
 import { Quiz } from './entities/quiz.entity';
-import { UpdateStatusDto } from './dto/update-status.dto';
 
 
 @Injectable()
@@ -23,6 +25,40 @@ export class QuizService {
 
   onModuleInit() {
     this.startQuizCheckingInterval();
+  }
+
+  // quiz status changing interval
+  async startQuizCheckingInterval() {
+
+    setInterval(async () => {
+      //  get the local time
+      const localISOTime = moment().tz('Asia/Colombo').format("YYYY-MM-DDTHH:mm:ss.SSSZ");
+      
+      const currentDate = localISOTime.split('T')[0];
+      const currentTime = localISOTime.split('T')[1].split('.')[0].split(':').slice(0, 2).join(':');
+      const currentDateTime = currentDate + ' ' + currentTime;
+
+      // starting the quizes
+      const allQuizzes = await this.quizModel.find({ status: 'not-started' });
+      
+      allQuizzes.forEach(async (quiz) => {
+        const quizStartTime = quiz.startDate + ' ' + quiz.startTime;
+        if(quizStartTime === currentDateTime) {
+          await this.quizModel.findByIdAndUpdate(quiz._id, { status: 'started' });
+        }
+      });
+
+      // completing the quizes
+      const allQuizzesStarted = await this.quizModel.find({ status: 'started' });
+
+      allQuizzesStarted.forEach(async (quiz) => {
+        const quizEndTime = quiz.startDate + ' ' + quiz.endTime;
+        if(quizEndTime === currentDateTime) {
+          await this.quizModel.findByIdAndUpdate(quiz._id, { status: 'completed' });
+        }
+      });
+
+  }, 1000); // 1 seconds
   }
 
   // Create a new quiz
@@ -194,43 +230,75 @@ export class QuizService {
     }
   }
 
+  // Find all quizes as a query
+  async findAll(
+    subject?: string,
+    teacher?: string,
+    batch?: string,
+    grade?: string,
+    status?: string,
+  ) {
+    try {
 
-// quiz status changing interval
-  async startQuizCheckingInterval() {
+      const quizzes = await this.quizModel.find({
+        subject: subject ? new Types.ObjectId(subject) : { $exists: true },
+        teacher: teacher ? new Types.ObjectId(teacher) : { $exists: true },
+        batch: batch ? batch : { $exists: true },
+        grade: grade ? grade : { $exists: true },
+        status: status ? status : { $exists: true },
+      })
+      .populate({
+        path : 'teacher',
+        model : 'User',
+      })
+      .populate({
+        path : 'subject',
+        model : 'Subject',
+      })
+      .exec();
 
-    setInterval(async () => {
-      //  get the local time
-      const localISOTime = moment().tz('Asia/Colombo').format("YYYY-MM-DDTHH:mm:ss.SSSZ");
-      
-      const currentDate = localISOTime.split('T')[0];
-      const currentTime = localISOTime.split('T')[1].split('.')[0].split(':').slice(0, 2).join(':');
-      const currentDateTime = currentDate + ' ' + currentTime;
-
-      // starting the quizes
-      const allQuizzes = await this.quizModel.find({ status: 'not-started' });
-      
-      allQuizzes.forEach(async (quiz) => {
-        const quizStartTime = quiz.startDate + ' ' + quiz.startTime;
-        if(quizStartTime === currentDateTime) {
-          await this.quizModel.findByIdAndUpdate(quiz._id, { status: 'started' });
+      if (quizzes.length === 0) {
+        return {
+          message: 'No quizzes found',
         }
-      });
+      }
 
-      // completing the quizes
-      const allQuizzesStarted = await this.quizModel.find({ status: 'started' });
+      return quizzes;
 
-      allQuizzesStarted.forEach(async (quiz) => {
-        const quizEndTime = quiz.startDate + ' ' + quiz.endTime;
-        if(quizEndTime === currentDateTime) {
-          await this.quizModel.findByIdAndUpdate(quiz._id, { status: 'completed' });
-        }
-      });
-
-  }, 1000); // 1 seconds
-
-  
-
+    }catch(err) {
+      throw new BadRequestException(`Error: ${err.message}`);
+    }
   }
+
+  // Find a quiz by id
+  async findOne(quizId: string) {
+    try {
+
+      const quiz = await this.quizModel.findById(quizId)
+      .populate({
+        path : 'teacher',
+        model : 'User',
+      })
+      .populate({
+        path : 'subject',
+        model : 'Subject',
+      })
+      .exec();
+
+      if(!quiz) {
+        throw new BadRequestException('Quiz not found');
+      }
+
+      return quiz;
+
+    }catch(err) {
+      throw new BadRequestException(`Error: ${err.message}`);
+    }
+  }
+
+
+
+
 
 }
 

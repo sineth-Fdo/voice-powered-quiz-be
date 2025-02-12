@@ -137,6 +137,28 @@ export class QuestionService {
     }
   }
 
+  // Find all questions with this quizId
+  async find(quizId: string, questionNumber?: number) {
+    try {
+      const questions = await this.questionModel.find({ 
+        quiz: new Types.ObjectId(quizId),
+        questionNumber: questionNumber ? questionNumber : { $exists: true },
+      })
+      .populate({
+        path : 'quiz',
+        model : 'Quiz',
+      }).exec();
+      if(questions.length === 0) {
+        throw new BadRequestException('No questions found');
+      }
+
+      return questions;
+
+    }catch(err) {
+      throw new BadRequestException(`Error: ${err.message}`);
+    }
+  }
+
 
 
 
