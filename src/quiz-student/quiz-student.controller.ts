@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import { CreateQuizStudentDto } from './dto/create-quiz-student.dto';
 import { QuizStudentService } from './quiz-student.service';
 
@@ -18,5 +18,13 @@ export class QuizStudentController {
     return this.quizStudentService.deleteAllQuizStudents(quizId);
   }
 
+    @Get('all')
+    findAll(
+      @Query('quizId') quizId: string,
+      @Query('student') student: string,
+    ) {
+      return this.quizStudentService.findAll(quizId, student);
+    }
+  
 
 }

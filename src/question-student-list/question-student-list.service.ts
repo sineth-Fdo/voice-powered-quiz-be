@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { QuestionStudentList } from './entities/question-student-list.entity';
 import { Question } from 'src/question/entities/question.entity';
 import { CreateQuestionStudentListDto } from './dto/create-question-student-list.dto';
+import { QuestionStudentList } from './entities/question-student-list.entity';
 
 @Injectable()
 export class QuestionStudentListService {
@@ -86,6 +86,8 @@ export class QuestionStudentListService {
       throw new BadRequestException(`Error: ${err.message}`);
     }
   }
+
+
 
 
 }

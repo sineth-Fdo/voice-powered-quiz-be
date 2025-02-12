@@ -1,17 +1,20 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+import { Quiz } from 'src/quiz/entities/quiz.entity';
+import { CreateSubjectDto } from './dto/create-subject.dto';
 import { Subject } from './entities/subject.entity';
-import { Model } from 'mongoose';
 
 @Injectable()
 export class SubjectService {
 
     constructor(
         @InjectModel(Subject.name) private SubjectModel: Model<Subject>,
+        @InjectModel(Quiz.name) private quizModel: Model<Quiz>
     ) {}
 
     // Create a new subject
-    async createSubject(createSubjectDto: any) {
+    async createSubject(createSubjectDto: CreateSubjectDto) {
         try {
             const subjectExist = await this.SubjectModel.findOne({ code: createSubjectDto.code });
             if(subjectExist) {
@@ -34,6 +37,11 @@ export class SubjectService {
                 throw new BadRequestException('Subject not found');
             }
 
+            const quizzes = await this.quizModel.find({ subject: new Types.ObjectId(id) });
+            if(quizzes.length > 0) {
+                throw new BadRequestException('Subject cannot be deleted because it has quizzes');
+            }
+
             await this.SubjectModel.findByIdAndDelete(id);
 
             return { message: 'Subject deleted successfully' };
@@ -43,7 +51,7 @@ export class SubjectService {
     }
 
     // Update a subject
-    async updateSubject(id: string, createSubjectDto: any) {
+    async updateSubject(id: string, createSubjectDto: CreateSubjectDto) {
         try {
             const subject = await this.SubjectModel.findById(id);
             if(!subject) {

@@ -156,5 +156,39 @@ export class QuizStudentService {
         }
     }
 
+    // find all quiz-student by query
+    async findAll(quizId: string, student?: string) {
+        try {
+            const quizStudents = await this.quizStudentModel.find({
+                quiz : quizId ? new Types.ObjectId(quizId) : { $exists: true },
+                student : student ? new Types.ObjectId(student) : { $exists: true },
+            })
+            .populate({
+                path : 'quiz',
+                model : 'Quiz',
+            })
+            .populate({
+                path : 'student',
+                model : 'User',
+            })
+            .populate({
+                path : 'answeredQuestions.questionId',
+                model : 'Question',
+            })
+            .exec();
+
+            if(quizStudents.length === 0) {
+                return {
+                    message: 'No quiz-students found',
+                };
+            }
+
+            return quizStudents;
+
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
 
 }
