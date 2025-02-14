@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { CreateQuestionStudentListDto } from './dto/create-question-student-list.dto';
 import { QuestionStudentListService } from './question-student-list.service';
 
@@ -11,6 +11,14 @@ export class QuestionStudentListController {
     @Body() CreateQuestionStudentListDto: CreateQuestionStudentListDto
   ){
     return this.questionStudentListService.create(CreateQuestionStudentListDto);
+  }
+
+  @Get('correct-incorrect/:questionId/:arrayType')
+  getCorrectIncorrect(
+    @Param('questionId') questionId: string,
+    @Param('arrayType') arrayType : string,
+  ){
+    return this.questionStudentListService.getCorrectIncorrect(questionId, arrayType);
   }
 
 

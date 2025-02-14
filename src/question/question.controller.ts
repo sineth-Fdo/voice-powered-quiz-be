@@ -22,13 +22,14 @@ export class QuestionController {
     return this.questionService.checkAnswer(checkAnswerDto);
   }
 
-  @Get('find/:quizId')
+  @Get('find/:quizId/:userId')
   find(
     @Param('quizId') quizId: string,
+    @Param('userId') userId: string,
     @Query('questionNumber') questionNumber: number,
 
 ) {
-    return this.questionService.find(quizId, questionNumber);
+    return this.questionService.find(quizId, userId, questionNumber);
   }
 
 }
