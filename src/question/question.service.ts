@@ -138,9 +138,39 @@ export class QuestionService {
   }
 
   // Find all questions with this quizId
-  async find(quizId: string, questionNumber?: number) {
+  async find(quizId: string, userId: string, questionNumber?: number) {
     try {
-      const questions = await this.questionModel.find({ 
+
+      const quiz = await this.quizModel.findOne({ _id: new Types.ObjectId(quizId) });
+      if(!quiz) {
+        throw new BadRequestException('Quiz not found');
+      }
+
+      const user = await this.userModel.findOne({ _id: new Types.ObjectId(userId) });
+      if(!user) {
+        throw new BadRequestException('User not found');
+      }
+
+      let questions;
+
+      if (user.role == 'student') {
+        if (questionNumber != undefined) {
+          questions = await this.questionModel.find({ 
+            quiz: new Types.ObjectId(quizId),
+            questionNumber: questionNumber ? questionNumber : { $exists: true },
+          })
+          .populate({
+            path : 'quiz',
+            model : 'Quiz',
+          }).exec();
+        }else {
+          throw new BadRequestException('Question number is required');
+        }
+
+      }
+
+      // is User is not a student 
+      questions = await this.questionModel.find({ 
         quiz: new Types.ObjectId(quizId),
         questionNumber: questionNumber ? questionNumber : { $exists: true },
       })

@@ -87,6 +87,27 @@ export class QuestionStudentListService {
     }
   }
 
+  // find all students getCorrectIncorrect
+  async getCorrectIncorrect(questionId: string, arrayType: string) {
+    try {
+      const questionStudentList = await this.questionStudentListModel.findOne({ question: new Types.ObjectId(questionId) });
+      if(!questionStudentList) {
+        throw new BadRequestException('Question student list not found');
+      }
+
+      if (arrayType !== 'correct' && arrayType !== 'incorrect') {
+        throw new BadRequestException('Invalid array type');
+      }
+
+      // return count of students in correct or incorrect array
+      return {
+        count: questionStudentList[arrayType].length,
+      };
+    }catch(err) {
+      throw new BadRequestException(`Error: ${err.message}`);
+    }
+  }
+
 
 
 
