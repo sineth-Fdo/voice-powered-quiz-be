@@ -9,6 +9,8 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.TEACHER, Role.ADMIN)
   @Get('allUsers')
   async getAllUsers() {
     return this.userService.getAllUsers();
