@@ -26,7 +26,7 @@ export class AuthController {
     }
     
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.TEACHER)
+  @Roles(Role.TEACHER, Role.ADMIN)
   @Post('test')
   async test() {
     return 'This is a test route';
