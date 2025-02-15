@@ -17,6 +17,11 @@ export class QuestionController {
     return this.questionService.deleteAllQuestionsAndStudentList(quizId);
   }
 
+  @Delete('delete/:questionId')
+  deleteQuestion(@Param('questionId') questionId: string) {
+    return this.questionService.deleteQuestion(questionId);
+  }
+
   @Patch('check-answer')
   checkAnswer(@Body() checkAnswerDto: CheckAnswerDto) {
     return this.questionService.checkAnswer(checkAnswerDto);

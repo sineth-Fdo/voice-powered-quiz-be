@@ -190,6 +190,25 @@ export class QuestionService {
   }
 
 
+  // Delete a question with questionId
+  async deleteQuestion(questionId: string) {
+    try {
+      const question = await this.questionModel.findOne({ _id: new Types.ObjectId(questionId) });
+      if(!question) {
+        throw new BadRequestException('Question not found');
+      }
+
+      await this.questionModel.findOneAndDelete({ _id: new Types.ObjectId(questionId) });
+
+      return {
+        message: 'Question deleted successfully',
+      }
+
+    }catch(err) {
+      throw new BadRequestException(`Error: ${err.message}`);
+    }
+  }
+
 
 
 }
