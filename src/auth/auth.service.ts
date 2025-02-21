@@ -53,6 +53,10 @@ export class AuthService {
           throw new UnauthorizedException('Invalid credentials');
       }
 
+      if (user.status === 'inactive') {
+        throw new UnauthorizedException('Your account has been deactivated');
+      }
+
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if(!isPasswordValid) {

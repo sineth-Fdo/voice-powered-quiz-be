@@ -17,7 +17,6 @@ export class BatchService {
   async create(createBatchDto: CreateBatchDto) {
     try {
 
-      console.log(createBatchDto);
       const batch = await this.batchModel.findOne({ name: createBatchDto.name });
       if (batch) {
         throw new BadRequestException('Batch already exists');
