@@ -3,10 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as moment from 'moment-timezone';
 import { Model, Types } from 'mongoose';
 import { User } from 'src/auth/entities/user.entity';
-import { Batch } from 'src/batch/entities/batch.entity';
 import { QuestionService } from 'src/question/question.service';
 import { QuizStudentService } from 'src/quiz-student/quiz-student.service';
-import { Subject } from 'src/subject/entities/subject.entity';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
 import { UpdateTotalsDto } from './dto/update-totals.dto';
@@ -134,7 +132,7 @@ export class QuizService {
         {
           quiz: quizId.toString(),
           studentGrade: createQuizDto.grade,
-          studentBatch: "2024"
+          studentBatch: createQuizDto.batch,
         }
       );
 
