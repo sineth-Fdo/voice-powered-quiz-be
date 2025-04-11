@@ -5,14 +5,14 @@ import { PassportModule } from '@nestjs/passport';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import config from './config/config';
-import { UserModule } from './user/user.module';
-import { SubjectModule } from './subject/subject.module';
-import { QuizModule } from './quiz/quiz.module';
-import { QuestionModule } from './question/question.module';
-import { QuestionStudentListModule } from './question-student-list/question-student-list.module';
-import { QuizStudentModule } from './quiz-student/quiz-student.module';
 import { BatchModule } from './batch/batch.module';
+import config from './config/config';
+import { QuestionStudentListModule } from './question-student-list/question-student-list.module';
+import { QuestionModule } from './question/question.module';
+import { QuizStudentModule } from './quiz-student/quiz-student.module';
+import { QuizModule } from './quiz/quiz.module';
+import { SubjectModule } from './subject/subject.module';
+import { UserModule } from './user/user.module';
 
 
 @Module({

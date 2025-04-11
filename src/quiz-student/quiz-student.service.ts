@@ -190,5 +190,39 @@ export class QuizStudentService {
         }
     }
 
+    // find quiz-student by quizId and studentId
+    async findOne(quizId: string, studentId: string) {
+        try {
+            const quizStudent = await this.quizStudentModel.findOne({
+                quiz : new Types.ObjectId(quizId),
+                student : new Types.ObjectId(studentId),
+            })
+            .populate({
+                path : 'quiz',
+                model : 'Quiz',
+            })
+            .populate({
+                path : 'student',
+                model : 'User',
+            })
+            .populate({
+                path : 'answeredQuestions.questionId',
+                model : 'Question',
+            })
+            .exec();
+
+            if(!quizStudent) {
+                return {
+                    message: 'Quiz-Student not found',
+                };
+            }
+
+            return quizStudent;
+
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
 
 }
