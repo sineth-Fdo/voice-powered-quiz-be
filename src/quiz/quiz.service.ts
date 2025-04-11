@@ -6,6 +6,7 @@ import { User } from 'src/auth/entities/user.entity';
 import { QuestionService } from 'src/question/question.service';
 import { QuizStudentService } from 'src/quiz-student/quiz-student.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
+import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
 import { UpdateTotalsDto } from './dto/update-totals.dto';
 import { Quiz } from './entities/quiz.entity';
@@ -288,6 +289,48 @@ export class QuizService {
       }
 
       return quiz;
+
+    }catch(err) {
+      throw new BadRequestException(`Error: ${err.message}`);
+    }
+  }
+
+  // Update a quiz
+  async updateQuiz(quizId: string, updateQuizDto: UpdateQuizDto) {
+    try {
+
+      // Check if the quiz exists
+      const quizExist = await this.quizModel.findById(quizId);
+      if(!quizExist) {
+        throw new BadRequestException('Quiz not found');
+      }
+
+         // give the startTime and endTime duration in minutes
+         const startTime = new Date(updateQuizDto.startDate + ' ' + updateQuizDto.startTime);
+         const endTime = new Date(updateQuizDto.startDate + ' ' + updateQuizDto.endTime);
+         const duration = (endTime.getTime() - startTime.getTime()) / 60000;
+   
+         const durationHours = Math.floor(duration / 60);
+         const durationMinutes = duration % 60;
+
+      // Update the quiz
+      await this.quizModel.findByIdAndUpdate(quizId, {
+        title: updateQuizDto.title,
+        code: updateQuizDto.code,
+        description: updateQuizDto.description,
+        password: updateQuizDto.password,
+        startDate: updateQuizDto.startDate,
+        startTime: updateQuizDto.startTime,
+        endTime: updateQuizDto.endTime,
+        duration: duration,
+        durationHours: durationHours,
+        durationMinutes: durationMinutes, 
+
+      });
+
+      return {
+        message: 'Quiz updated successfully',
+      };
 
     }catch(err) {
       throw new BadRequestException(`Error: ${err.message}`);

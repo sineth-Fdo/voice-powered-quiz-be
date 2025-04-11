@@ -58,6 +58,9 @@ export class QuestionService {
         correct: [],
         incorrect: [],
       });
+
+      // increase the quizTotalQuestions in quiz collection
+      await this.quizModel.findOneAndUpdate({ _id: quizId }, { $inc: { quizTotalQuestions: 1 } });
     
       return {
         message : "Question created successfully & Question-Student-List created successfully",

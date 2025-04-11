@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { CreateQuizDto } from './dto/create-quiz.dto';
-import { QuizService } from './quiz.service';
-import { UpdateTotalsDto } from './dto/update-totals.dto';
+import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
+import { UpdateTotalsDto } from './dto/update-totals.dto';
+import { QuizService } from './quiz.service';
 
 @Controller('quiz')
 export class QuizController {
@@ -58,4 +59,11 @@ export class QuizController {
     return this.quizService.findOne(quizId);
   }
 
+  @Put('update/:quizId')
+  updateQuiz(
+    @Param('quizId') quizId: string,
+    @Body() updateQuizDto: UpdateQuizDto,
+  ) {
+    return this.quizService.updateQuiz(quizId, updateQuizDto);
+  }
 }

@@ -25,6 +25,13 @@ export class QuizStudentController {
     ) {
       return this.quizStudentService.findAll(quizId, student);
     }
-  
+
+    @Get('findOne/:quizId/:studentId')
+    findOneStudent(
+      @Param('quizId') quizId: string,
+      @Param('studentId') studentId: string,
+    ) {
+      return this.quizStudentService.findOne(quizId, studentId);
+    }
 
 }
