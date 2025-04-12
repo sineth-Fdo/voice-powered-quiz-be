@@ -66,4 +66,12 @@ export class QuizController {
   ) {
     return this.quizService.updateQuiz(quizId, updateQuizDto);
   }
+
+  @Patch('updatePassMark/:quizId')
+  updatePassMark(
+    @Param('quizId') quizId: string,
+    @Body() updateQuizDto: { passMark: number },
+  ) {
+    return this.quizService.updatePassMark(quizId, updateQuizDto);
+  }
 }
