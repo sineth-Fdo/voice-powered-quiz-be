@@ -1,13 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { User } from 'src/auth/entities/user.entity';
 import { QuestionStudentListService } from 'src/question-student-list/question-student-list.service';
+import { QuizStudentService } from 'src/quiz-student/quiz-student.service';
 import { Quiz } from 'src/quiz/entities/quiz.entity';
+import { CheckAnswerDto } from './dto/check-answer.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { Question } from './entities/question.entity';
-import { CheckAnswerDto } from './dto/check-answer.dto';
-import { User } from 'src/auth/entities/user.entity';
-import { QuizStudentService } from 'src/quiz-student/quiz-student.service';
 
 @Injectable()
 export class QuestionService {
@@ -60,6 +60,7 @@ export class QuestionService {
       });
 
       // increase the quizTotalQuestions in quiz collection
+      await this.quizModel.findOneAndUpdate({ _id: quizId }, { $inc: { quizTotalMarks: createQuestionDto.marks } });
       await this.quizModel.findOneAndUpdate({ _id: quizId }, { $inc: { quizTotalQuestions: 1 } });
     
       return {

@@ -309,7 +309,7 @@ export class QuizService {
          const startTime = new Date(updateQuizDto.startDate + ' ' + updateQuizDto.startTime);
          const endTime = new Date(updateQuizDto.startDate + ' ' + updateQuizDto.endTime);
          const duration = (endTime.getTime() - startTime.getTime()) / 60000;
-   
+
          const durationHours = Math.floor(duration / 60);
          const durationMinutes = duration % 60;
 
@@ -337,9 +337,34 @@ export class QuizService {
     }
   }
 
+  // Update the pass mark of a quiz
+  async updatePassMark(quizId: string, updateQuizDto: { passMark: number }) {
+    try {
 
+      // Check if the quiz exists
+      const quizExist = await this.quizModel.findById(quizId);
+      if(!quizExist) {
+        throw new BadRequestException('Quiz not found');
+      }
 
+      const quizTotalMarks = quizExist.quizTotalMarks;
+      const quizPassingMarks = updateQuizDto.passMark;
 
+      if (quizTotalMarks <= quizPassingMarks) {
+        throw new BadRequestException('Total marks cannot be greater than passing marks');
+      }
+
+      // Update the quiz
+      await this.quizModel.findByIdAndUpdate(quizId, { passingMarks: updateQuizDto.passMark });
+
+      return {
+        message: 'Quiz pass mark updated successfully',
+      };
+
+    }catch(err) {
+      throw new BadRequestException(`Error: ${err.message}`);
+    }
+  }
 
 }
 
