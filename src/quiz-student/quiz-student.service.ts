@@ -26,6 +26,11 @@ export class QuizStudentService {
                 throw new Error('Quiz not found');
             }
 
+            const teacher = await this.userModel.findOne({ _id : createQuizStudentDto.teacher });
+            if(!teacher) {
+                throw new Error('Teacher not found');
+            }
+
             // find all G-11 grade students
             const students = await this.userModel.find({ grade: createQuizStudentDto.studentGrade, batch: createQuizStudentDto.studentBatch, role: 'student' });
 
@@ -60,6 +65,7 @@ export class QuizStudentService {
             for(let i = 0; i < temp.length; i++) {
                 await this.quizStudentModel.create({
                     quiz : new Types.ObjectId(createQuizStudentDto.quiz),
+                    teacher : new Types.ObjectId(createQuizStudentDto.teacher),
                     student : new Types.ObjectId(temp[i].student),
                 });
             }
@@ -156,26 +162,76 @@ export class QuizStudentService {
         }
     }
 
+    // async findAll(quizId: string, student?: string, teacher?: string) {
+    //     try {
+    //         let query: any = {};
+            
+    //         // Add filters to the basic query
+    //         if (quizId) {
+    //             query.quiz = new Types.ObjectId(quizId);
+    //         }
+            
+    //         if (student) {
+    //             query.student = new Types.ObjectId(student);
+    //         }
+            
+    //         // First get quizStudents with basic filters
+    //         let quizStudents = await this.quizStudentModel.find(query)
+    //             .populate({
+    //                 path: 'quiz',
+    //                 model: 'Quiz',
+    //                 // Apply teacher filter during population
+    //                 ...(teacher && { match: { teacher: new Types.ObjectId(teacher) } })
+    //             })
+    //             .populate({
+    //                 path: 'student',
+    //                 model: 'User',
+    //             })
+    //             .populate({
+    //                 path: 'answeredQuestions.questionId',
+    //                 model: 'Question',
+    //             })
+    //             .exec();
+                
+    //         // Filter out results where quiz is null (happens when populate match fails)
+    //         if (teacher) {
+    //             quizStudents = quizStudents.filter(item => item.quiz !== null);
+    //         }
+    
+    //         if(quizStudents.length === 0) {
+    //             return {
+    //                 message: 'No quiz-students found',
+    //             };
+    //         }
+    
+    //         return quizStudents;
+    //     } catch (error) {
+    //         console.log('FindAll error:', error);
+    //         throw new Error(error.message);
+    //     }
+    // }
+
     // find all quiz-student by query
-    async findAll(quizId: string, student?: string) {
+    async findAll(quizId: string, student?: string, teacherId?: string) {
         try {
             const quizStudents = await this.quizStudentModel.find({
                 quiz : quizId ? new Types.ObjectId(quizId) : { $exists: true },
-                student : student ? new Types.ObjectId(student) : { $exists: true },
+                student : student ? new Types.ObjectId(student) : { $exists: true },   
+                teacher : teacherId ? new Types.ObjectId(teacherId) : { $exists: true }, 
             })
-            .populate({
-                path : 'quiz',
-                model : 'Quiz',
-            })
-            .populate({
-                path : 'student',
-                model : 'User',
-            })
-            .populate({
-                path : 'answeredQuestions.questionId',
-                model : 'Question',
-            })
-            .exec();
+            // .populate({
+            //     path : 'quiz',
+            //     model : 'Quiz',
+            // })
+            // .populate({
+            //     path : 'student',
+            //     model : 'User',
+            // })
+            // .populate({
+            //     path : 'answeredQuestions.questionId',
+            //     model : 'Question',
+            // })
+            // .exec();
 
             if(quizStudents.length === 0) {
                 return {

@@ -21,6 +21,13 @@ export class QuizStudent extends Document {
     })
     student: Types.ObjectId;
 
+    @Prop({
+        type: Types.ObjectId,
+        ref: 'User',
+        required: true,
+    })
+    teacher: Types.ObjectId;
+
     @Prop({ type: Number, required: false, default: 0 })
     correctMarks: number
 

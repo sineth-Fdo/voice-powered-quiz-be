@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsArray, IsBoolean, IsNumber, IsString } from "class-validator";
+import { IsString } from "class-validator";
 
 export class CreateQuizStudentDto {
 
@@ -14,6 +14,10 @@ export class CreateQuizStudentDto {
     @IsString()
     @Type(() => String)
     studentBatch: string;
+
+    @IsString()
+    @Type(() => String)
+    teacher: string;
 
 
 
