@@ -22,8 +22,9 @@ export class QuizStudentController {
     findAll(
       @Query('quizId') quizId: string,
       @Query('student') student: string,
+      @Query('teacherId') teacherId: string,
     ) {
-      return this.quizStudentService.findAll(quizId, student);
+      return this.quizStudentService.findAll(quizId, student, teacherId);
     }
 
     @Get('findOne/:quizId/:studentId')

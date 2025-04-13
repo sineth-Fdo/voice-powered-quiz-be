@@ -134,6 +134,7 @@ export class QuizService {
           quiz: quizId.toString(),
           studentGrade: createQuizDto.grade,
           studentBatch: createQuizDto.batch,
+          teacher: createQuizDto.teacher.toString(),
         }
       );
 
