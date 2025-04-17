@@ -17,7 +17,7 @@ export class QuizStudentController {
   ) {
     return this.quizStudentService.deleteAllQuizStudents(quizId);
   }
-
+  
     @Get('all')
     findAll(
       @Query('quizId') quizId: string,
@@ -26,7 +26,7 @@ export class QuizStudentController {
     ) {
       return this.quizStudentService.findAll(quizId, student, teacherId);
     }
-
+  
     @Get('findOne/:quizId/:studentId')
     findOneStudent(
       @Param('quizId') quizId: string,
@@ -34,5 +34,5 @@ export class QuizStudentController {
     ) {
       return this.quizStudentService.findOne(quizId, studentId);
     }
-
+  
 }
