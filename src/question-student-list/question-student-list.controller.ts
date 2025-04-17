@@ -13,12 +13,11 @@ export class QuestionStudentListController {
     return this.questionStudentListService.create(CreateQuestionStudentListDto);
   }
 
-  @Get('correct-incorrect/:questionId/:arrayType')
+  @Get('correct-incorrect/:questionId')
   getCorrectIncorrect(
     @Param('questionId') questionId: string,
-    @Param('arrayType') arrayType : string,
   ){
-    return this.questionStudentListService.getCorrectIncorrect(questionId, arrayType);
+    return this.questionStudentListService.getCorrectIncorrect(questionId);
   }
 
 
