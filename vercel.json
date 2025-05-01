@@ -11,11 +11,6 @@
       "src": "/(.*)",
       "dest": "src/main.js"
     }
-  ],
-  "functions": {
-    "src/main.js": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
-  }
+  ]
+
 }
