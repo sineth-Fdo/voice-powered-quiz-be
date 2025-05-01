@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
@@ -45,26 +45,32 @@ export class AuthService {
     
     // login a user
     async login(loginData: LoginDto) {
-      const {email, password} = loginData;
+      try {
+        const {email, password} = loginData;
 
-      const user = await this.UserModel.findOne({email});
+        const user = await this.UserModel.findOne({email});
+  
+        if(!user) {
+            throw new BadRequestException('Invalid credentials');
+        }
+  
+        if (user.status === 'inactive') {
+          throw new BadRequestException('Your account has been deactivated');
+        }
+  
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+  
+        if(!isPasswordValid) {
+            throw new BadRequestException('Invalid credentials');
+        }
+  
+        // Genarate JWT token 
+        return  this.generateTokens(user.id, user.role);
 
-      if(!user) {
-          throw new UnauthorizedException('Invalid credentials');
+      }catch (error) {
+        throw new BadRequestException(`Error: ${error.message}`);
       }
-
-      if (user.status === 'inactive') {
-        throw new UnauthorizedException('Your account has been deactivated');
-      }
-
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-
-      if(!isPasswordValid) {
-          throw new UnauthorizedException('Invalid credentials');
-      }
-
-      // Genarate JWT token 
-      return  this.generateTokens(user.id, user.role);
+     
   }
 
 
