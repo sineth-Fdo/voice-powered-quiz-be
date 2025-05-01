@@ -1,23 +1,34 @@
-import { createServer, proxy } from 'aws-serverless-express';
-import { Callback, Context, Handler } from 'aws-lambda';
-import { AppModule } from '../src/app.module';
 import { NestFactory } from '@nestjs/core';
-import * as express from 'express';
 import { ExpressAdapter } from '@nestjs/platform-express';
+import { AppModule } from '../src/app.module';
+import express from 'express';
+import * as serverless from 'serverless-http';
 
-let cachedServer;
+const app = express();
 
-async function bootstrapServer() {
-  if (!cachedServer) {
-    const expressApp = express();
-    const nestApp = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
-    await nestApp.init();
-    cachedServer = createServer(expressApp);
-  }
-  return cachedServer;
+async function bootstrap() {
+  const nestApp = await NestFactory.create(
+    AppModule,
+    new ExpressAdapter(app),
+  );
+  
+  // Apply your CORS settings and middlewares here
+  nestApp.enableCors({
+    origin: process.env.FRONTEND_URL || '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    credentials: true,
+  });
+  
+  await nestApp.init();
+  return app;
 }
 
-export const handler: Handler = async (event: any, context: Context, callback: Callback) => {
-  cachedServer = await bootstrapServer();
-  return proxy(cachedServer, event, context, 'PROMISE').promise;
+let cachedHandler;
+
+export default async (req, res) => {
+  if (!cachedHandler) {
+    const expressApp = await bootstrap();
+    cachedHandler = serverless(expressApp);
+  }
+  return cachedHandler(req, res);
 };
