@@ -1,0 +1,15 @@
+{
+    "version": 2,
+    "functions": {
+      "api/index.ts": {
+        "runtime": "vercel-nodejs"
+      }
+    },
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "api/index.ts"
+      }
+    ]
+  }
+  
